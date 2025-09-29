@@ -1,7 +1,7 @@
 const express = require("express");
 const path = require("path");
 const bodyParser = require("body-parser");
-const { StartBot } = require("./system/start");
+const { StartBot } = require("./bot/system/start");  // ✅ fixed path
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -11,7 +11,7 @@ app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, "public")));
 
 // Routes
-app.use("/api/pair", require("./api/pair"));
+app.use("/api/pair", require("./bot/api/pair"));  // ✅ also fix path
 
 // Start bot & server
 StartBot()

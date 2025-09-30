@@ -1,156 +1,87 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>DAMI'S SILENCER - Mini Pair</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>DAMI'S SILENCER - MINI PAIR</title>
   <style>
-    body {
-      margin: 0;
-      font-family: "Courier New", monospace;
-      background: radial-gradient(circle at top, #000814, #000000);
-      color: #00ffcc;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      overflow: hidden;
-    }
-    body::before {
-      content: "";
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: repeating-linear-gradient(
-        0deg,
-        rgba(0, 255, 204, 0.05) 0,
-        rgba(0, 255, 204, 0.05) 1px,
-        transparent 1px,
-        transparent 2px
-      );
-      animation: move 20s linear infinite;
-      z-index: 0;
-    }
-    @keyframes move {
-      from { transform: translateY(0); }
-      to { transform: translateY(100px); }
-    }
-    .container {
-      background: rgba(0, 0, 0, 0.85);
-      padding: 2rem;
-      border: 1px solid #00ffcc;
-      border-radius: 10px;
-      box-shadow: 0 0 20px #00ffcc44;
-      text-align: center;
-      z-index: 1;
-      width: 90%;
-      max-width: 450px;
-    }
-    h1 {
-      font-size: 1.6rem;
-      margin-bottom: 1rem;
-      color: #ffcc00;
-      text-shadow: 0 0 10px #ffcc00aa;
-    }
-    input {
-      width: 100%;
-      padding: 0.6rem;
-      border: 1px solid #00ffcc;
-      border-radius: 5px;
-      background: #001d1d;
-      color: #00ffcc;
-      font-size: 1rem;
-      margin-bottom: 1rem;
-      outline: none;
-    }
-    button {
-      background: #00ffcc;
-      border: none;
-      padding: 0.6rem 1.4rem;
-      border-radius: 5px;
-      font-weight: bold;
-      font-size: 1rem;
-      cursor: pointer;
-      margin: 0.3rem;
-      transition: 0.3s;
-      color: #000;
-    }
-    button:hover {
-      background: #33ffd9;
-    }
-    .result-box {
-      margin-top: 1rem;
-      background: #000;
-      border: 1px solid #00ffcc;
-      border-radius: 5px;
-      padding: 1rem;
-      font-size: 1.1rem;
-      text-align: left;
-      min-height: 50px;
-      word-break: break-word;
-    }
-    .status {
-      margin-top: 0.5rem;
-      font-size: 0.9rem;
-      color: #ffcc00;
-    }
+    :root{--accent:#00ffcc;--gold:#ffcc00}
+    html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;background:#01020a;color:#e6fff8}
+    body{display:flex;align-items:center;justify-content:center;padding:32px}
+    .card{width:100%;max-width:520px;background:linear-gradient(180deg,rgba(0,0,0,0.7),rgba(2,6,23,0.6));padding:26px;border-radius:14px;border:1px solid rgba(0,255,204,0.06);box-shadow:0 12px 40px rgba(0,0,0,0.6)}
+    .logo{display:flex;gap:14px;align-items:center}
+    .mark{width:64px;height:64px;border-radius:12px;background:linear-gradient(90deg,#6b21a8,#2563eb);display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:20px}
+    h1{margin:0;font-size:20px}
+    p.sub{margin:0;color:#9aa3b2;font-size:13px}
+    .row{display:flex;gap:12px;margin-top:18px}
+    .left{flex:1}
+    input{width:100%;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:#03121a;color:var(--accent);outline:none;font-size:15px}
+    .btn{padding:11px 14px;border-radius:10px;border:none;background:linear-gradient(90deg,#2563eb,#6b21a8);color:#fff;font-weight:700;cursor:pointer}
+    .copy{background:var(--accent);color:#000;padding:10px 12px;border-radius:10px;border:none;cursor:pointer}
+    .meta{margin-top:14px;color:#9aa3b2;font-size:13px}
+    .codebox{margin-top:12px;background:#000;border:1px solid rgba(0,255,204,0.06);padding:14px;border-radius:10px;font-family:monospace;color:var(--accent);font-size:18px;word-break:break-all;display:flex;justify-content:space-between;align-items:center}
+    .status{margin-top:12px;color:var(--gold)}
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>DAMI'S SILENCER<br>MINI PAIR</h1>
-    <form id="pairForm">
-      <input type="text" id="phone" placeholder="Enter phone (e.g. 2349012345678)" required>
-      <button type="submit">Generate</button>
-      <button type="button" id="copyBtn">📋 Copy</button>
-    </form>
-    <div class="result-box" id="result">No code yet...</div>
-    <div class="status" id="status">Waiting for input.</div>
+  <div class="card">
+    <div class="logo"><div class="mark">DS</div><div><h1>DAMI'S SILENCER — MINI PAIR</h1><p class="sub">Web pairing portal</p></div></div>
+    <div class="row">
+      <div class="left">
+        <input id="phone" placeholder="+2348012345678" />
+      </div>
+      <div>
+        <button class="btn" id="gen">Generate</button>
+      </div>
+    </div>
+    <div class="codebox"><div id="code">No code yet</div><button class="copy" id="copy">📋 Copy</button></div>
+    <div class="meta"><span id="log">Ready</span></div>
+    <div class="status" id="status">Checking bot status...</div>
   </div>
 
-  <script>
-    const resultBox = document.getElementById("result");
-    const statusBox = document.getElementById("status");
-    const copyBtn = document.getElementById("copyBtn");
+<script>
+async function refreshStatus(){
+  try{
+    const r = await fetch('/status')
+    const j = await r.json()
+    const s = document.getElementById('status')
+    s.textContent = j.connected ? 'Bot Connected ✅' : 'Bot Not Connected ❌ - ' + (j.details||'')
+  }catch(e){ document.getElementById('status').textContent = 'Status error' }
+}
+document.getElementById('gen').addEventListener('click', async ()=>{
+  const phone = document.getElementById('phone').value.trim()
+  const codeEl = document.getElementById('code')
+  const log = document.getElementById('log')
+  if(!phone){ log.textContent='Enter phone'; return }
+  codeEl.textContent = 'Generating...'
+  log.textContent = 'Requesting pairing code...'
+  try{
+    const res = await fetch('/pair',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone})})
+    const data = await res.json()
+    if(data.success && data.code){
+      codeEl.textContent = data.code
+      log.textContent = data.note || 'Code generated'
+    } else if(data.code){
+      codeEl.textContent = data.code
+      log.textContent = data.note || 'Fallback code'
+    } else {
+      codeEl.textContent = 'Failed'
+      log.textContent = data.message || 'No code returned'
+    }
+  }catch(e){
+    codeEl.textContent = 'Request failed'
+    log.textContent = 'Error: ' + e.message
+  }
+  refreshStatus()
+})
 
-    document.getElementById("pairForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const phone = document.getElementById("phone").value.trim();
-      resultBox.textContent = "⌛ Generating pairing code...";
-      statusBox.textContent = "Contacting server...";
-
-      try {
-        const res = await fetch("/pair", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ phone })
-        });
-        const data = await res.json();
-
-        if (data.success && data.code) {
-          resultBox.textContent = data.code;
-          statusBox.textContent = "✅ Pairing code generated!";
-        } else {
-          resultBox.textContent = "❌ Failed to generate code";
-          statusBox.textContent = "Server says: " + (data.message || "Unknown error");
-        }
-      } catch (err) {
-        resultBox.textContent = "❌ Request failed.";
-        statusBox.textContent = "Error: " + err.message;
-      }
-    });
-
-    copyBtn.addEventListener("click", () => {
-      const text = resultBox.textContent;
-      if (text && text !== "No code yet..." && !text.startsWith("❌")) {
-        navigator.clipboard.writeText(text);
-        statusBox.textContent = "📋 Copied to clipboard!";
-      } else {
-        statusBox.textContent = "⚠ Nothing to copy yet.";
-      }
-    });
-  </script>
+document.getElementById('copy').addEventListener('click', ()=>{
+  const txt = document.getElementById('code').textContent
+  if(!txt || txt==='No code yet' || txt==='Generating...' || txt==='Failed' || txt==='Request failed'){ document.getElementById('log').textContent='Nothing to copy'; return }
+  navigator.clipboard.writeText(txt).then(()=>{ document.getElementById('log').textContent='Copied to clipboard' })
+})
+setInterval(refreshStatus,5000)
+refreshStatus()
+</script>
 </body>
 </html>

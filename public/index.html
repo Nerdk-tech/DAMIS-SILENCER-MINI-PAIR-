@@ -1,121 +1,156 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>DAMI'S SILENCER MINI PAIR</title>
-<style>
-  :root{--bg:#060607;--card:#0b0f13;--muted:#9aa3b2;--accent1:#6b21a8;--accent2:#2563eb}
-  body{margin:0;min-height:100vh;background:linear-gradient(180deg,#060607 0%,#071024 100%);color:#e6eef6;font-family:Inter,system-ui,Segoe UI,Roboto,Arial}
-  .wrap{display:flex;align-items:center;justify-content:center;padding:40px}
-  .card{width:100%;max-width:920px;background:linear-gradient(180deg, rgba(10,11,13,0.75), rgba(6,7,9,0.6));border-radius:16px;padding:28px;border:1px solid rgba(255,255,255,0.03);box-shadow:0 12px 40px rgba(0,0,0,0.6)}
-  .head{display:flex;gap:16px;align-items:center}
-  .logo{width:72px;height:72px;border-radius:12px;background:linear-gradient(90deg,var(--accent1),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:800;color:white;font-size:22px}
-  h1{margin:0;font-size:22px}
-  p.sub{margin:0;color:var(--muted);font-size:13px}
-  .grid{display:grid;grid-template-columns:1fr 300px;gap:20px;margin-top:18px}
-  .panel{background:rgba(255,255,255,0.02);padding:16px;border-radius:12px;border:1px solid rgba(255,255,255,0.02)}
-  label{display:block;color:var(--muted);font-size:13px;margin-bottom:8px}
-  input{width:100%;padding:12px;border-radius:10px;border:none;background:#071018;color:#e9f0f7;outline:none}
-  button{width:100%;padding:12px;border-radius:10px;border:none;background:linear-gradient(90deg,var(--accent2),var(--accent1));color:white;font-weight:700;cursor:pointer}
-  .status{display:flex;align-items:center;gap:10px}
-  .dot{width:12px;height:12px;border-radius:50%}
-  .connected{background:#16a34a}
-  .disconnected{background:#ef4444}
-  .info{color:var(--muted);font-size:13px;margin-top:8px}
-  .code{font-family:monospace;background:#03121a;padding:8px 12px;border-radius:8px;letter-spacing:3;font-size:18px;display:inline-block}
-</style>
+  <meta charset="UTF-8">
+  <title>DAMI'S SILENCER - Mini Pair</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin: 0;
+      font-family: "Courier New", monospace;
+      background: radial-gradient(circle at top, #000814, #000000);
+      color: #00ffcc;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+    body::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 255, 204, 0.05) 0,
+        rgba(0, 255, 204, 0.05) 1px,
+        transparent 1px,
+        transparent 2px
+      );
+      animation: move 20s linear infinite;
+      z-index: 0;
+    }
+    @keyframes move {
+      from { transform: translateY(0); }
+      to { transform: translateY(100px); }
+    }
+    .container {
+      background: rgba(0, 0, 0, 0.85);
+      padding: 2rem;
+      border: 1px solid #00ffcc;
+      border-radius: 10px;
+      box-shadow: 0 0 20px #00ffcc44;
+      text-align: center;
+      z-index: 1;
+      width: 90%;
+      max-width: 450px;
+    }
+    h1 {
+      font-size: 1.6rem;
+      margin-bottom: 1rem;
+      color: #ffcc00;
+      text-shadow: 0 0 10px #ffcc00aa;
+    }
+    input {
+      width: 100%;
+      padding: 0.6rem;
+      border: 1px solid #00ffcc;
+      border-radius: 5px;
+      background: #001d1d;
+      color: #00ffcc;
+      font-size: 1rem;
+      margin-bottom: 1rem;
+      outline: none;
+    }
+    button {
+      background: #00ffcc;
+      border: none;
+      padding: 0.6rem 1.4rem;
+      border-radius: 5px;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      margin: 0.3rem;
+      transition: 0.3s;
+      color: #000;
+    }
+    button:hover {
+      background: #33ffd9;
+    }
+    .result-box {
+      margin-top: 1rem;
+      background: #000;
+      border: 1px solid #00ffcc;
+      border-radius: 5px;
+      padding: 1rem;
+      font-size: 1.1rem;
+      text-align: left;
+      min-height: 50px;
+      word-break: break-word;
+    }
+    .status {
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+      color: #ffcc00;
+    }
+  </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="card">
-    <div class="head">
-      <div class="logo">DS</div>
-      <div>
-        <h1>DAMI'S SILENCER — MINI PAIR</h1>
-        <p class="sub">Web pairing portal for your Telexwa bot — dark theme</p>
-      </div>
-    </div>
-
-    <div class="grid">
-      <div>
-        <div class="panel">
-          <label>WhatsApp number</label>
-          <input id="phone" placeholder="+2348012345678" />
-          <div style="height:12px"></div>
-          <button onclick="doPair()">Generate Pair</button>
-          <div id="result" style="margin-top:12px"></div>
-        </div>
-
-        <div class="panel" style="margin-top:12px">
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <div><strong>Latest activity</strong></div>
-            <div id="last" style="color:var(--muted);font-size:13px">—</div>
-          </div>
-          <div class="info" id="log">Server started. Pairing not used yet.</div>
-        </div>
-      </div>
-
-      <div>
-        <div class="panel">
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <div><strong>Bot status</strong></div>
-            <div id="statusText" class="status"><div id="dot" class="dot disconnected"></div><div id="statustxt" style="color:var(--muted)">Checking...</div></div>
-          </div>
-          <div class="info" id="statusDetails">Detecting...</div>
-        </div>
-
-        <div class="panel" style="margin-top:12px">
-          <div><strong>Pairing code</strong></div>
-          <div style="margin-top:8px"><span id="code" class="code">—</span></div>
-          <div class="info" style="margin-top:8px">Copy the code and use it to pair your device.</div>
-        </div>
-      </div>
-    </div>
+  <div class="container">
+    <h1>DAMI'S SILENCER<br>MINI PAIR</h1>
+    <form id="pairForm">
+      <input type="text" id="phone" placeholder="Enter phone (e.g. 2349012345678)" required>
+      <button type="submit">Generate</button>
+      <button type="button" id="copyBtn">📋 Copy</button>
+    </form>
+    <div class="result-box" id="result">No code yet...</div>
+    <div class="status" id="status">Waiting for input.</div>
   </div>
-</div>
 
-<script>
-async function refreshStatus() {
-  try {
-    const res = await fetch('/status')
-    const s = await res.json()
-    const dot = document.getElementById('dot')
-    const statustxt = document.getElementById('statustxt')
-    const details = document.getElementById('statusDetails')
-    if (s.connected) {
-      dot.className = 'dot connected'
-      statustxt.textContent = 'Bot Connected ✅'
-    } else {
-      dot.className = 'dot disconnected'
-      statustxt.textContent = 'Bot Disconnected ❌'
-    }
-    details.textContent = s.details || ''
-  } catch (e) {
-    console.error(e)
-  }
-}
+  <script>
+    const resultBox = document.getElementById("result");
+    const statusBox = document.getElementById("status");
+    const copyBtn = document.getElementById("copyBtn");
 
-async function doPair() {
-  const phone = document.getElementById('phone').value.trim()
-  if (!phone) return alert('Enter phone number')
-  document.getElementById('result').textContent = 'Generating…'
-  try {
-    const res = await fetch('/pair', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ phone }) })
-    const data = await res.json()
-    document.getElementById('result').textContent = data.code ? 'Pair code: ' + data.code : 'Error: ' + (data.error || 'Unknown')
-    document.getElementById('code').textContent = data.code || '—'
-    document.getElementById('last').textContent = new Date().toLocaleString()
-    const log = document.getElementById('log')
-    log.textContent = (data.note ? data.note + ' — ' : '') + (data.code ? 'Generated code ' + data.code : 'No code returned')
-    refreshStatus()
-  } catch (e) {
-    document.getElementById('result').textContent = 'Error: ' + e.message
-  }
-}
+    document.getElementById("pairForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const phone = document.getElementById("phone").value.trim();
+      resultBox.textContent = "⌛ Generating pairing code...";
+      statusBox.textContent = "Contacting server...";
 
-setInterval(refreshStatus, 5000)
-refreshStatus()
-</script>
+      try {
+        const res = await fetch("/pair", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ phone })
+        });
+        const data = await res.json();
+
+        if (data.success && data.code) {
+          resultBox.textContent = data.code;
+          statusBox.textContent = "✅ Pairing code generated!";
+        } else {
+          resultBox.textContent = "❌ Failed to generate code";
+          statusBox.textContent = "Server says: " + (data.message || "Unknown error");
+        }
+      } catch (err) {
+        resultBox.textContent = "❌ Request failed.";
+        statusBox.textContent = "Error: " + err.message;
+      }
+    });
+
+    copyBtn.addEventListener("click", () => {
+      const text = resultBox.textContent;
+      if (text && text !== "No code yet..." && !text.startsWith("❌")) {
+        navigator.clipboard.writeText(text);
+        statusBox.textContent = "📋 Copied to clipboard!";
+      } else {
+        statusBox.textContent = "⚠ Nothing to copy yet.";
+      }
+    });
+  </script>
 </body>
 </html>

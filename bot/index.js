@@ -1,64 +1,64 @@
-// bot/index.js
+// index.js
+
+// ====== DEPENDENCIES ======
 const {
-  default: makeWASocket,
-  useMultiFileAuthState,
-  fetchLatestBaileysVersion,
-  DisconnectReason
-} = require("@whiskeysockets/baileys")
+    default: makeWASocket,
+    useMultiFileAuthState,
+    DisconnectReason,
+    fetchLatestBaileysVersion
+} = require("@whiskeysockets/baileys");
 
-let sock = null
-let isConnected = false
+const fs = require("fs");
+const chalk = require("chalk");
 
-async function startBot() {
-  try {
-    // keep auth/session in /bot/session
-    const { state, saveCreds } = await useMultiFileAuthState("./bot/session")
-    const { version } = await fetchLatestBaileysVersion()
+// Import your handler (the big switch-case you showed)
+const zynHandler = require("./xmd"); // make sure file name is correct
 
-    sock = makeWASocket({
-      version,
-      auth: state,
-      printQRInTerminal: false,
-      browser: ["DAMI'S SILENCER", "Mini-Pair", "1.0"]
-    })
+// ====== MAIN FUNCTION ======
+async function connectToWhatsApp() {
+    const { state, saveCreds } = await useMultiFileAuthState("./session");
+    const { version } = await fetchLatestBaileysVersion();
 
-    sock.ev.on("creds.update", saveCreds)
+    const sock = makeWASocket({
+        version,
+        printQRInTerminal: true, // show QR code in console (alternative to pairing code)
+        auth: state,
+        browser: ["DAMI'S SILENCER", "Chrome", "1.0.0"],
+    });
 
+    // 🔑 If no session, request a pairing code
+    if (!sock.authState.creds.registered) {
+        const phoneNumber = "2348054671458"; // change to your WhatsApp number
+        const code = await sock.requestPairingCode(phoneNumber);
+        console.log(chalk.green.bold(`✅ Your WhatsApp pairing code: ${code}`));
+    }
+
+    // 🔄 Handle connection updates
     sock.ev.on("connection.update", (update) => {
-      const { connection, lastDisconnect } = update
-      if (connection === "open") {
-        isConnected = true
-        console.log("✅ WhatsApp connected")
-      } else if (connection === "close") {
-        isConnected = false
-        const reason = lastDisconnect?.error?.output?.statusCode
-        console.log("❌ Disconnected", reason)
-        if (reason !== DisconnectReason.loggedOut) {
-          console.log("🔄 Restarting bot...")
-          startBot() // auto-reconnect unless logged out
+        const { connection, lastDisconnect } = update;
+        if (connection === "close") {
+            const reason = lastDisconnect?.error?.output?.statusCode;
+            console.log(chalk.red(`❌ Connection closed. Reason: ${reason}`));
+            if (reason !== DisconnectReason.loggedOut) {
+                connectToWhatsApp(); // auto reconnect
+            } else {
+                console.log("❌ Logged out. Delete /session and re-run to pair again.");
+            }
+        } else if (connection === "open") {
+            console.log(chalk.blue.bold("✅ DAMI'S SILENCER BOT CONNECTED ✅"));
         }
-      }
-    })
+    });
 
-    return sock
-  } catch (err) {
-    console.error("❌ Error starting bot:", err)
-    throw err
-  }
+    // 💾 Save session credentials
+    sock.ev.on("creds.update", saveCreds);
+
+    // 📩 Forward messages to handler
+    sock.ev.on("messages.upsert", async ({ messages }) => {
+        const msg = messages[0];
+        if (!msg.message) return;
+        await zynHandler(sock, msg, msg.message, {}); // pass sock + message to handler
+    });
 }
 
-// function exposed for /pair endpoint
-async function generatePairingCode(phone) {
-  if (!sock) throw new Error("Socket not ready")
-  if (typeof sock.requestPairingCode !== "function") {
-    throw new Error("This version of Baileys doesn’t support pairing codes")
-  }
-  if (!phone) throw new Error("Phone number is required")
-  const code = await sock.requestPairingCode(phone)
-  console.log("📟 Pairing code for", phone, "→", code)
-  return { code, expires: null }
-}
-
-startBot()
-
-module.exports = { generatePairingCode, sock, isConnected }
+// ====== START BOT ======
+connectToWhatsApp();

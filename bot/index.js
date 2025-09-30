@@ -1,65 +1,64 @@
-// bot/index.js - exported StartBot and generatePairingCode
-const path = require('path')
-const { default: makeWASocket, useMultiFileAuthState, DisconnectReason, makeInMemoryStore, jidDecode } = require('@whiskeysockets/baileys')
-const pino = require('pino')
-const chalk = require('chalk')
-const os = require('os')
-const crypto = require('crypto')
-globalThis.crypto = crypto.webcrypto
+// bot/index.js
+const {
+  default: makeWASocket,
+  useMultiFileAuthState,
+  fetchLatestBaileysVersion,
+  DisconnectReason
+} = require("@whiskeysockets/baileys")
 
-let store
-try { store = makeInMemoryStore({ logger: pino().child({ level: 'silent', stream: 'store' }) }) } catch(e){}
+let sock = null
+let isConnected = false
 
-const usePairingCode = true
-
-async function StartBot() {
+async function startBot() {
   try {
-    const { state, saveCreds } = await useMultiFileAuthState(path.join(__dirname, 'session'))
-    const ask = makeWASocket({
-      logger: pino({ level: "silent" }),
-      printQRInTerminal: !usePairingCode,
+    // keep auth/session in /bot/session
+    const { state, saveCreds } = await useMultiFileAuthState("./bot/session")
+    const { version } = await fetchLatestBaileysVersion()
+
+    sock = makeWASocket({
+      version,
       auth: state,
-      browser: ["Ubuntu", "Chrome", "20.0.04"]
+      printQRInTerminal: false,
+      browser: ["DAMI'S SILENCER", "Mini-Pair", "1.0"]
     })
-    try { store && store.bind && store.bind(ask.ev) } catch(e){}
-    ask.ev.on("connection.update", async (update) => {
-      const { connection } = update
-      if (connection === 'open') {
-        console.log(chalk.green('Bot connected!'))
-      } else if (connection === 'close') {
-        console.warn('Connection closed, retrying...')
+
+    sock.ev.on("creds.update", saveCreds)
+
+    sock.ev.on("connection.update", (update) => {
+      const { connection, lastDisconnect } = update
+      if (connection === "open") {
+        isConnected = true
+        console.log("✅ WhatsApp connected")
+      } else if (connection === "close") {
+        isConnected = false
+        const reason = lastDisconnect?.error?.output?.statusCode
+        console.log("❌ Disconnected", reason)
+        if (reason !== DisconnectReason.loggedOut) {
+          console.log("🔄 Restarting bot...")
+          startBot() // auto-reconnect unless logged out
+        }
       }
     })
-    ask.ev.on('creds.update', saveCreds)
-    // expose sock for status checks
-    module.exports._sock = ask
-    return ask
-  } catch (e) {
-    console.error('StartBot error', e)
-    throw e
+
+    return sock
+  } catch (err) {
+    console.error("❌ Error starting bot:", err)
+    throw err
   }
 }
 
+// function exposed for /pair endpoint
 async function generatePairingCode(phone) {
-  try {
-    const { state, saveCreds } = await useMultiFileAuthState(path.join(__dirname, 'session'))
-    const sock = makeWASocket({
-      logger: pino({ level: "silent" }),
-      printQRInTerminal: false,
-      auth: state,
-      browser: ["Ubuntu", "Chrome", "20.0.04"]
-    })
-    sock.ev.on('creds.update', saveCreds)
-    if (typeof sock.requestPairingCode === 'function') {
-      const code = await sock.requestPairingCode(phone.trim(), "DAMI-BOTZ")
-      return { code, expires: null }
-    } else {
-      throw new Error('requestPairingCode not available')
-    }
-  } catch (e) {
-    console.error('generatePairingCode error', e)
-    throw e
+  if (!sock) throw new Error("Socket not ready")
+  if (typeof sock.requestPairingCode !== "function") {
+    throw new Error("This version of Baileys doesn’t support pairing codes")
   }
+  if (!phone) throw new Error("Phone number is required")
+  const code = await sock.requestPairingCode(phone)
+  console.log("📟 Pairing code for", phone, "→", code)
+  return { code, expires: null }
 }
 
-module.exports = { StartBot, generatePairingCode }
+startBot()
+
+module.exports = { generatePairingCode, sock, isConnected }
